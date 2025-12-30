@@ -1,0 +1,17 @@
+# specs/ml.yaml
+model:
+  task: binary_classification
+  label_rule: "congested if avg_speed < 15 and percent_slow > 0.4"
+features:
+  - avg_speed
+  - vehicle_count
+  - percent_slow
+  - weather_code
+  - time_of_day
+training:
+  source: s3://traffic/raw/segment_metrics/
+  algorithm: gradient_boosting
+inference:
+  input_stream: kafka:segment_metrics
+  output_stream: kafka:congestion_scores
+  latency_budget: 500ms

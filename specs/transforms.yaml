@@ -1,0 +1,14 @@
+# specs/transforms.yaml
+streaming:
+  source: kafka:traffic_stream
+  window:
+    type: tumbling
+    duration: 2m
+  group_by: [road_segment_id]
+  aggregations:
+    - avg_speed: avg(speed)
+    - vehicle_count: count(*)
+    - percent_slow: sum(speed < 20)/count(*)
+sink:
+  - kafka:segment_metrics
+  - s3: s3://traffic/raw/segment_metrics/ (format: parquet, partition_by: [road_segment_id, date])

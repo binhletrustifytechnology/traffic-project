@@ -1,0 +1,16 @@
+# specs/ops.yaml
+observability:
+  metrics:
+    - kafka_lag
+    - throughput_msgs_sec
+    - processing_latency_ms
+alerts:
+  - name: sustained_congestion
+    rule: percent_slow > 0.6 for 3 windows
+    notify: pagerduty
+reliability:
+  retries: 3
+  dead_letter_topic: kafka:dlq_traffic_stream
+deployment:
+  orchestrator: airflow
+  containers: docker

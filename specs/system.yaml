@@ -1,0 +1,14 @@
+# specs/system.yaml
+name: Real-Time Traffic Analytics
+goals:
+  - ingest vehicle telemetry and segment metrics in real-time
+  - predict congestion probability per segment
+slas:
+  throughput: ">= 500 msgs/sec"
+  latency: "<= 5s window-to-output"
+components:
+  - kafka: traffic_stream, segment_metrics, congestion_scores
+  - processing: spark_structured_streaming
+  - storage: s3_parquet, postgres
+  - serving: fastapi
+  - dashboards: grafana
