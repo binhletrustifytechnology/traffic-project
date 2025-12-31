@@ -20,6 +20,6 @@ RUN rm -rf /var/lib/apt/lists/*
 COPY ./libs/spark-sql-kafka-0-10_2.13-4.0.0.jar /opt/spark/jars/spark-sql-kafka-0-10_2.13-4.0.0.jar
 COPY ./libs/kafka-clients-3.7.0.jar /opt/spark/jars/kafka-clients-3.7.0.jar
 COPY ./libs/spark-token-provider-kafka-0-10_2.13-4.0.0.jar /opt/spark/jars/spark-token-provider-kafka-0-10_2.13-4.0.0.jar
-
+COPY ./libs/commons-pool2-2.8.0.jar /opt/spark/jars/commons-pool2-2.8.0.jar
 # Default command: run the Spark job
 CMD ["/opt/spark/bin/spark-submit", "/opt/stream_processor/stream_processor.py"]
