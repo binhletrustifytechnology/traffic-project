@@ -5,7 +5,7 @@ FROM spark:4.0.0-python3
 WORKDIR /opt/stream_processor
 
 # Copy your streaming job into the container
-COPY stream_processor.py /opt/stream_processor/
+COPY stream_processor_2.py /opt/stream_processor/
 
 USER root
 
