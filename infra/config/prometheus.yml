@@ -1,0 +1,34 @@
+global:
+  scrape_interval: 15s    # How often to scrape targets
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Kafka broker metrics (requires JMX exporter sidecar)
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka:7071']   # adjust to your JMX exporter port
+
+  # Spark master metrics
+  - job_name: 'spark-master'
+    static_configs:
+      - targets: ['spark:8080']
+
+  # Spark worker metrics
+  - job_name: 'spark-worker'
+    static_configs:
+      - targets: ['spark-worker:8081']
+
+  # FastAPI inference service metrics (via /metrics endpoint with Prometheus client)
+  - job_name: 'fastapi-inference'
+    static_configs:
+      - targets: ['fastapi-inference:8000']
+
+  # Airflow metrics (requires Airflow Prometheus plugin)
+  - job_name: 'airflow'
+    static_configs:
+      - targets: ['airflow-webserver:8081']

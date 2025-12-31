@@ -41,12 +41,12 @@ services:
     depends_on:
       - spark
 
-  fastapi-inference:
-    build: ./services/ml_inference
-    depends_on:
-      - kafka
-    ports:
-      - "8000:8000"
+#  fastapi-inference:
+#    build: ./services/ml_inference
+#    depends_on:
+#      - kafka
+#    ports:
+#      - "8000:8000"
 
   airflow-webserver:
     image: apache/airflow:2.9.0
@@ -107,7 +107,7 @@ services:
   prometheus:
     image: prom/prometheus:v3.8.1
     volumes:
-      - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
 
