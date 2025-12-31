@@ -66,15 +66,6 @@ out_kafka = out.select(
         col("percent_slow")
     )).alias("value") )
 
-# def debug_batch(df, epoch_id):
-#     print(f"=== Batch {epoch_id} ===")
-#     df.show(truncate=False)
-#
-# (out_kafka.writeStream
-#     .foreachBatch(debug_batch)
-#     .outputMode("update")
-#     .start()
-#     .awaitTermination())
 
 # 8. Write results back to Kafka (segment_metrics topic)
 query = (out_kafka.writeStream

@@ -26,13 +26,14 @@ json_df = df.select(from_json(col("value"), schema).alias("data")).select("data.
 transformed_df = json_df.withColumn("event_value_doubled", col("event_value") * 2)
 
 # Write the transformed data to console (for simplicity)
-# query = transformed_df.writeStream.outputMode("append").format("console").start()
-query = (transformed_df.writeStream
-         .format("kafka")
-         .option("kafka.bootstrap.servers", "kafka:9092")
-         .option("topic", "out-topic")
-         .option("checkpointLocation", "/tmp/spark_chkpt")
-         .outputMode("update")
-         .start())
-
-query.awaitTermination()
+query = transformed_df.writeStream.outputMode("append").format("console").start()
+# query = (transformed_df.writeStream
+#          .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+#          .format("kafka")
+#          .option("kafka.bootstrap.servers", "kafka:9092")
+#          .option("topic", "out-topic")
+#          .option("checkpointLocation", "/tmp/spark_chkpt")
+#          .outputMode("update")
+#          .start())
+#
+# query.awaitTermination()
