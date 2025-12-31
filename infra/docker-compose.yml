@@ -23,25 +23,56 @@ services:
       - "9092:9092"
       - "9093:9093"
 
-  spark:
-    image: spark:4.0.1-python3
-    environment:
-      SPARK_MODE: master
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: kafka-ui
     ports:
-      - "7077:7077"
-      - "8080:8080"
+      - "8082:8080"   # Expose UI on localhost:8082
+    depends_on:
+      - kafka
+      - zookeeper
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+
+
+  spark-master:
+    image: spark:4.0.0-python3
+    container_name: spark-master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --host spark-master
+    ports:
+      - "7077:7077" # Spark master port
+      - "8080:8080" # Spark master web UI
+    environment:
+      SPARK_NO_DAEMONIZE: "true"
     volumes:
-      - ./services/stream_processor:/opt/stream_processor
+      - ../services/stream_processor:/opt/stream_processor
 
   spark-worker:
-    image: spark:4.0.1-python3
-    environment:
-      SPARK_MODE: worker
-      SPARK_MASTER_URL: spark://spark:7077
+    image: spark:4.0.0-python3
+    container_name: spark-worker
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
     depends_on:
-      - spark
+      - spark-master
+    ports:
+      - "8081:8081" # Spark worker web UI
+    environment:
+      SPARK_NO_DAEMONIZE: "true"
 
-#  fastapi-inference:
+  producer:
+    build: ../services/producer
+    depends_on:
+      - kafka
+
+  stream-processor:
+    build: ../services/stream_processor
+    depends_on:
+      - kafka
+      - spark-master
+
+
+  #  fastapi-inference:
 #    build: ./services/ml_inference
 #    depends_on:
 #      - kafka
@@ -66,7 +97,7 @@ services:
     ports:
       - "8081:8080"
     volumes:
-      - ./airflow/dags:/opt/airflow/dags
+      - ../airflow/dags:/opt/airflow/dags
 
   airflow-scheduler:
     image: apache/airflow:2.9.0
