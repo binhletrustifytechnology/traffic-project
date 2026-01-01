@@ -1,39 +1,28 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import from_json, col
-from pyspark.sql.types import StructType, StructField, StringType, LongType
+from pyspark.sql.functions import from_json, to_json, struct, col
+from pyspark.sql.types import StructType, StructField, IntegerType, DoubleType
 
-# Create Spark session
-spark = SparkSession.builder.appName("KafkaSparkPipeline").getOrCreate()
+# 1. Initialize Spark with the Kafka Connector
+spark = SparkSession.builder \
+    .appName("KafkaEventProcessor") \
+    .getOrCreate()
 
-# Define the schema of the data
+# 2. Define the schema matching your JSON
 schema = StructType([
-    StructField("event_id", LongType(), True),
-    StructField("event_value", LongType(), True),
-    StructField("timestamp", LongType(), True)
+    StructField("event_id", IntegerType(), True),
+    StructField("event_value", IntegerType(), True),
+    StructField("timestamp", DoubleType(), True)
 ])
 
-# Read data from Kafka
-df = spark.readStream.format("kafka") \
-    .option("kafka.bootstrap.servers", "kafka:9092") \
+# 3. Read from Kafka
+# Note: 'kafka:9092' is used because Spark is running inside the Docker network
+raw_df = spark.read \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", "kafka-1:9092") \
+    .option("startingOffsets", "earliest") \
     .option("subscribe", "my-topic") \
     .load()
 
-# Parse the JSON data from Kafka
-df = df.selectExpr("CAST(value AS STRING)")
-json_df = df.select(from_json(col("value"), schema).alias("data")).select("data.*")
+df1 = raw_df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
 
-# Perform transformations
-transformed_df = json_df.withColumn("event_value_doubled", col("event_value") * 2)
-
-# Write the transformed data to console (for simplicity)
-query = transformed_df.writeStream.outputMode("append").format("console").start()
-# query = (transformed_df.writeStream
-#          .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
-#          .format("kafka")
-#          .option("kafka.bootstrap.servers", "kafka:9092")
-#          .option("topic", "out-topic")
-#          .option("checkpointLocation", "/tmp/spark_chkpt")
-#          .outputMode("update")
-#          .start())
-#
-# query.awaitTermination()
+df1.show()

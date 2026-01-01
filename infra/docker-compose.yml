@@ -9,19 +9,33 @@ services:
     ports:
       - "2181:2181"
 
-  kafka:
+  kafka-1:
     image: confluentinc/cp-kafka:7.5.0
     depends_on:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092,PLAINTEXT_HOST://localhost:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
     ports:
       - "9092:9092"
       - "9093:9093"
+
+  kafka-2:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9094,PLAINTEXT_HOST://localhost:9095
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    ports:
+      - "9094:9094"
+      - "9095:9095"
 
   kafka-ui:
     image: provectuslabs/kafka-ui:v0.7.2
@@ -29,11 +43,11 @@ services:
     ports:
       - "8082:8080"   # Expose UI on localhost:8082
     depends_on:
-      - kafka
+      - kafka-1
       - zookeeper
     environment:
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-1:9092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
 
 
@@ -63,12 +77,12 @@ services:
   producer:
     build: ../services/producer
     depends_on:
-      - kafka
+      - kafka-1
 
   stream-processor:
     build: ../services/stream_processor
     depends_on:
-      - kafka
+      - kafka-1
       - spark-master
 
 
