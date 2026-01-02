@@ -81,6 +81,9 @@ services:
 
   stream-processor:
     build: ../services/stream_processor
+    volumes:
+      - ../services/stream_processor:/opt/stream_processor
+    command: tail -f /dev/null
     depends_on:
       - kafka-1
       - spark-master

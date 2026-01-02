@@ -18,7 +18,7 @@ schema = StructType([
 # Note: 'kafka:9092' is used because Spark is running inside the Docker network
 raw_df = spark.read \
     .format("kafka") \
-    .option("kafka.bootstrap.servers", "kafka-1:9092") \
+    .option("kafka.bootstrap.servers", "kafka:9092") \
     .option("startingOffsets", "earliest") \
     .option("subscribe", "my-topic") \
     .load()
@@ -26,3 +26,5 @@ raw_df = spark.read \
 df1 = raw_df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
 
 df1.show()
+
+# /opt/spark/bin/spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.0 stream_processor.py
