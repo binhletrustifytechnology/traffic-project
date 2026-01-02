@@ -72,6 +72,7 @@ services:
     build: ../services/stream_processor
     volumes:
       - ../services/stream_processor:/opt/stream_processor
+      - ../services/stream_processor/checkpoints:/tmp/spark_checkpoints
     command: tail -f /dev/null
     depends_on:
       - kafka

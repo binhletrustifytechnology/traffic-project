@@ -30,7 +30,7 @@ def main():
         event = simulate_event()
         producer.send("traffic_stream", event)
         print(f"Produced event: {event}")
-        time.sleep(0.5)  # adjust frequency as needed
+        time.sleep(1)  # adjust frequency as needed
 
 if __name__ == "__main__":
     main()
